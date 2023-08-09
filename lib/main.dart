@@ -3,6 +3,9 @@ import 'package:flutter_application_19/responsi/Responsive%20.dart';
 import 'package:flutter_application_19/responsi/mobail/mobail.dart';
 import 'package:flutter_application_19/responsi/web/web.dart';
 
+import 'responsi/mobail/screens/register.dart';
+import 'responsi/mobail/screens/sign_in.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,10 +15,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: Responsive(mobail: moail(),wep: wep()),
+      home: Login(),
+      // home: Responsive(mobail: moail(),wep: wep()),
     );
   }
 }
