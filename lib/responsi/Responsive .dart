@@ -3,9 +3,9 @@ import 'package:flutter_application_19/responsi/mobail/mobail.dart';
 import 'package:flutter_application_19/responsi/web/web.dart';
 
 class Responsive extends StatefulWidget {
-  final mobail;
-  final wep;
-  const Responsive({super.key, required this.mobail, required this.wep});
+  final mobaill;
+  final wepp;
+  const Responsive({super.key, required this.mobaill, required this.wepp});
 
   @override
   State<Responsive> createState() => _ResponsiveState();
@@ -16,9 +16,9 @@ class _ResponsiveState extends State<Responsive> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext, BoxConstraints) {
       if (BoxConstraints.maxWidth > 600) {
-        return widget.wep;
+        return widget.wepp;
       } else {
-        return widget.mobail;
+        return widget.mobaill;
       }
     });
   }
