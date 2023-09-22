@@ -4,9 +4,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 getImgURL({
   required String imgName,
+  required String folderName,
   required Uint8List imgPath,
 }) async {
-  final storageRef = FirebaseStorage.instance.ref("profileIMG/$imgName");
+  final storageRef = FirebaseStorage.instance.ref("$folderName/$imgName");
 
   //
   // نستخدم هذ الكود اذا بنرفع البينات وليس الملف

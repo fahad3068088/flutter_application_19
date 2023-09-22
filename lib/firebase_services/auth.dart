@@ -6,6 +6,7 @@ import 'package:flutter_application_19/firebase_services/storage.dart';
 import '../models/user.dart';
 import '../sheert/snackbar.dart';
 
+
 class AuthMethods {
   register({
     required emailll,
@@ -16,43 +17,69 @@ class AuthMethods {
     required imgName,
     required imgPath,
   }) async {
-    String message = "ERROR => توقف الكود عن العمل سطر(18)";
+    String message = "ERROR => Not starting the code";
+
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailll,
         password: passworddd,
       );
+
       message = "ERROR => Registered only";
-      // -----------------------------------------------
 
-      String urlll = await getImgURL(imgName: imgName, imgPath: imgPath);
+// ______________________________________________________________________
 
-// Store img url in firestore[database]
+      String urlll = await getImgURL(imgName: imgName, imgPath: imgPath, folderName: 'profileIMG');
 
-      // ------------------------------------------------
-
+// _______________________________________________________________________
+// firebase firestore (Database)
       CollectionReference users =
           FirebaseFirestore.instance.collection('usersss');
+
       UserDate userr = UserDate(
-        email: emailll,
-        password: passworddd,
-        title: titleee,
-        username: usernameee,
-        profileImg: urlll,
-        uid: credential.user!.uid,
-      );
+          email: emailll,
+          password: passworddd,
+          title: titleee,
+          username: usernameee,
+          profileImg: urlll,
+          uid: credential.user!.uid,
+          followers: [],
+          following: []);
+
       users
           .doc(credential.user!.uid)
           .set(userr.convert2Map())
           .then((value) => print("User Added"))
           .catchError((error) => print("Failed to add user: $error"));
-      message = " تم ارسال البنات ♥";
+
+      message = " Registered & User Added 2 DB ♥";
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, "ERROR :  ${e.code} ");
     } catch (e) {
       print(e);
     }
+
     showSnackBar(context, message);
+  }
+
+  signIn({required emailll, required passworddd, required context}) async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: emailll, password: passworddd);
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(context, "ERROR :  ${e.code} ");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  // functoin to get user details from Firestore (Database)
+  Future<UserDate> getUserDetails() async {
+    DocumentSnapshot snap = await FirebaseFirestore.instance
+        .collection('usersss')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    return UserDate.convertSnap2Model(snap);
   }
 }

@@ -1,24 +1,30 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_application_19/provider/user_provider.dart';
 import 'package:flutter_application_19/responsi/Responsive%20.dart';
 import 'package:flutter_application_19/responsi/mobail/mobail.dart';
+import 'package:flutter_application_19/responsi/mobail/screens/sign_in.dart';
 import 'package:flutter_application_19/responsi/web/web.dart';
+import 'package:flutter_application_19/sheert/snackbar.dart';
 
-import 'responsi/mobail/screens/register.dart';
-import 'responsi/mobail/screens/sign_in.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: const FirebaseOptions(
-            apiKey: "AIzaSyDge8mMsQnEx5nT85w6Gg-usqoGL3QIy_M",
-            authDomain: "fir-setup-3ee22.firebaseapp.com",
-            projectId: "fir-setup-3ee22",
-            storageBucket: "fir-setup-3ee22.appspot.com",
-            messagingSenderId: "726611463227",
-            appId: "1:726611463227:web:6d325bcfc32b5bb71c201e"));
+            apiKey: "AIzaSyAfGsFfsQPhIu39W5VzXsSbEaSA_WljnD4",
+            authDomain: "level4-instaaaaa.firebaseapp.com",
+            projectId: "level4-instaaaaa",
+            storageBucket: "level4-instaaaaa.appspot.com",
+            messagingSenderId: "230268819679",
+            appId: "1:230268819679:web:65fa191161a2366137316a"));
   } else {
     await Firebase.initializeApp();
   }
@@ -30,10 +36,38 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: Register(),
+    return ChangeNotifierProvider(
+      create: (context) {
+        return UserProvider();
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                  child: CircularProgressIndicator(
+                color: Colors.white,
+              ));
+            } else if (snapshot.hasError) {
+              return showSnackBar(context, "Something went wrong");
+            } else if (snapshot.hasData) {
+              return const Responsive(
+                mobaill: moail(),
+                wepp: wep(),
+              );
+            } else {
+              return const Login();
+            }
+          },
+        ),
+        // home: Resposive(
+        //   myMobileScreen: MobileScerren(),
+        //   myWebScreen: WebScerren(),
+        // ),
+      ),
     );
   }
 }

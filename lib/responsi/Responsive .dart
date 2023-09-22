@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_19/responsi/mobail/mobail.dart';
 import 'package:flutter_application_19/responsi/web/web.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/user_provider.dart';
 
 class Responsive extends StatefulWidget {
   final mobaill;
@@ -12,6 +15,18 @@ class Responsive extends StatefulWidget {
 }
 
 class _ResponsiveState extends State<Responsive> {
+  // To get data from DB using provider
+ getDataFromDB() async {
+ UserProvider userProvider = Provider.of(context, listen: false);
+ await userProvider.refreshUser();
+ }
+ 
+ 
+ @override
+ void initState() {
+    super.initState();
+    getDataFromDB();
+ }
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext, BoxConstraints) {

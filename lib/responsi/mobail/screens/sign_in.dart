@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../firebase_services/auth.dart';
 import '../../../sheert/colors.dart';
 import '../../../sheert/contants.dart';
+import '../../../sheert/snackbar.dart';
 import 'register.dart';
 
 class Login extends StatefulWidget {
@@ -54,7 +56,7 @@ class _LoginState extends State<Login> {
         ),
         body: Center(
             child: Padding(
-           padding: widthScreen > 600
+          padding: widthScreen > 600
               ? EdgeInsets.symmetric(horizontal: widthScreen * .3)
               : const EdgeInsets.all(33.0),
           child: SingleChildScrollView(
@@ -93,9 +95,18 @@ class _LoginState extends State<Login> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  // await signIn();
-                  // if (!mounted) return;
-                  // showSnackBar(context, "Done ... ");
+                  setState(() {
+                    isLoading = true;
+                  });
+                  await AuthMethods().signIn(
+                      emailll: emailController.text,
+                      passworddd: passwordController.text,
+                      context: context);
+                  setState(() {
+                    isLoading = false;
+                  });
+                  if (!mounted) return;
+                  showSnackBar(context, "تم");
                 },
                 style: ButtonStyle(
                   // backgroundColor: MaterialStateProperty.all(bTNgreen),

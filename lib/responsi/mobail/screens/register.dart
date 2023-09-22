@@ -122,6 +122,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
+
   clickOnRegister() async {
     if (_formKey.currentState!.validate() &&
         imgName != null &&
@@ -241,6 +242,11 @@ class _RegisterState extends State<Register> {
                     height: 22,
                   ),
                   TextFormField(
+                    validator: (value) {
+                        return value!.isEmpty
+                            ? "Enter Your title"
+                            : null;
+                      },
                       controller: titleController,
                       keyboardType: TextInputType.text,
                       obscureText: false,
