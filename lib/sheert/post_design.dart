@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../responsi/mobail/screens/comments.dart';
 import 'colors.dart';
 
 class PostDesign extends StatefulWidget {
@@ -78,7 +79,13 @@ class _PostDesignState extends State<PostDesign> {
                       icon: Icon(Icons.favorite_border),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                         Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CommentsScreen(data : widget.data)),
+                        );
+                      },
                       icon: const Icon(
                         Icons.comment_outlined,
                       ),

@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import '../../../sheert/colors.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  final String uiddd;
+  const Profile({Key? key, required this.uiddd}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -16,8 +17,11 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   Map userDate = {};
   bool isLoading = true;
-  int followers = 0;
-  int following = 0;
+ late int followers ;
+ late int following ;
+ late int postCount ;
+
+ late bool showFollow ;
 
   getData() async {
     // Get data from DB
@@ -29,13 +33,22 @@ class _ProfileState extends State<Profile> {
       DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
           .collection('usersss')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.uiddd)
           .get();
 
       userDate = snapshot.data()!;
 
       followers = userDate["followers"].length;
       following = userDate["following"].length;
+      showFollow = userDate["followers"]
+          .contains(FirebaseAuth.instance.currentUser!.uid);
+//  To get posts length
+
+      var snapshotPosts = await FirebaseFirestore.instance
+          .collection('postSSS')
+          .where("uid", isEqualTo: widget.uiddd)
+          .get();
+      postCount = snapshotPosts.docs.length;
     } catch (e) {
       print(e.toString());
     }
@@ -92,7 +105,7 @@ class _ProfileState extends State<Profile> {
                           Column(
                             children: [
                               Text(
-                                "1",
+                                postCount.toString(),
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -177,65 +190,154 @@ class _ProfileState extends State<Profile> {
                 SizedBox(
                   height: 9,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.edit,
-                        color: Colors.grey,
-                        size: 24.0,
-                      ),
-                      label: Text(
-                        "Edit profile",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Color.fromARGB(0, 90, 103, 223)),
-                        padding: MaterialStateProperty.all(EdgeInsets.symmetric(
-                            vertical: widthScreen > 600 ? 19 : 10,
-                            horizontal: 33)),
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
-                            side: BorderSide(
-                                color: Color.fromARGB(109, 255, 255, 255),
-                                // width: 1,
-                                style: BorderStyle.solid),
+                widget.uiddd == FirebaseAuth.instance.currentUser!.uid
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.grey,
+                              size: 24.0,
+                            ),
+                            label: Text(
+                              "Edit profile",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Color.fromARGB(0, 90, 103, 223)),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.symmetric(
+                                      vertical: widthScreen > 600 ? 19 : 10,
+                                      horizontal: 33)),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7),
+                                  side: BorderSide(
+                                      color: Color.fromARGB(109, 255, 255, 255),
+                                      // width: 1,
+                                      style: BorderStyle.solid),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.logout,
-                        size: 24.0,
-                      ),
-                      label: Text(
-                        "Log out",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Color.fromARGB(143, 255, 55, 112)),
-                        padding: MaterialStateProperty.all(EdgeInsets.symmetric(
-                            vertical: widthScreen > 600 ? 19 : 10,
-                            horizontal: 33)),
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
+                          SizedBox(
+                            width: 15,
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.logout,
+                              size: 24.0,
+                            ),
+                            label: Text(
+                              "Log out",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Color.fromARGB(143, 255, 55, 112)),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.symmetric(
+                                      vertical: widthScreen > 600 ? 19 : 10,
+                                      horizontal: 33)),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    // //////////////////////////////////////////////
+                    : showFollow 
+                        ? ElevatedButton(
+                            onPressed: () async {
+                              followers--;
+                              setState(() {
+                                showFollow = false;
+                              });
+
+                              // widget.uiddd ==> الشخص الغريب
+
+                              await FirebaseFirestore.instance
+                                  .collection("usersss")
+                                  .doc(widget.uiddd)
+                                  .update({
+                                "followers": FieldValue.arrayRemove(
+                                    [FirebaseAuth.instance.currentUser!.uid])
+                              });
+
+                              await FirebaseFirestore.instance
+                                  .collection("usersss")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .update({
+                                "following":
+                                    FieldValue.arrayRemove([widget.uiddd])
+                              });
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Color.fromARGB(143, 255, 55, 112)),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.symmetric(
+                                      vertical: 9, horizontal: 66)),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              "unfollow",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                          )
+                        : ElevatedButton(
+                            onPressed: () async {
+                              followers++;
+                              setState(() {
+                                showFollow = true;
+                              });
+
+                              // widget.uiddd ==> الشخص الغريب
+
+                              await FirebaseFirestore.instance
+                                  .collection("usersss")
+                                  .doc(widget.uiddd)
+                                  .update({
+                                "followers": FieldValue.arrayUnion(
+                                    [FirebaseAuth.instance.currentUser!.uid])
+                              });
+
+                              await FirebaseFirestore.instance
+                                  .collection("usersss")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .update({
+                                "following":
+                                    FieldValue.arrayUnion([widget.uiddd])
+                              });
+                            },
+                            style: ButtonStyle(
+                              // backgroundColor: MaterialStateProperty.all(
+                              //     Color.fromARGB(0, 90, 103, 223)),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.symmetric(
+                                      vertical: 9, horizontal: 77)),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              "Follow",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                          ),
                 SizedBox(
                   height: 9,
                 ),
@@ -249,8 +351,7 @@ class _ProfileState extends State<Profile> {
                 FutureBuilder(
                   future: FirebaseFirestore.instance
                       .collection('postSSS')
-                      .where("uid",
-                          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                      .where("uid", isEqualTo: widget.uiddd)
                       .get(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasError) {

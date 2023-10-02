@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_19/responsi/mobail/screens/comments.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../sheert/colors.dart';
@@ -88,11 +90,12 @@ class _wepState extends State<wep> {
         physics: NeverScrollableScrollPhysics(),
         // controller: _pageController,
         children: [
+          
           Home(),
           Search(),
           AddPost(),
           Center(child: Text("Love u ♥")),
-          Profile(),
+          Profile(uiddd: FirebaseAuth.instance.currentUser!.uid,),
         ],
       ),
     );

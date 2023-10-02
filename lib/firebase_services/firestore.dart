@@ -56,4 +56,32 @@ class FirestoreMethods {
 
     showSnackBar(context, message);
   }
-}
+  // ///////////////////////
+ uploadComment(
+      {required commentText,
+      required context,
+      required postId,
+      required profileImg,
+      required username,
+      required uid}) async {
+    if (commentText.isNotEmpty) {
+      String commentId = const Uuid().v1();
+      await FirebaseFirestore.instance
+          .collection("postSSS")
+          .doc(postId)
+          .collection("commentSSS")
+          .doc(commentId)
+          .set({
+        "profilePic": profileImg,
+        "username": username,
+        "textComment": commentText,
+        "dataPublished": DateTime.now(),
+        "uid": uid,
+        "commentId": commentId
+      });
+    } else {
+      showSnackBar(context, "no");
+      
+              }
+         }
+  }

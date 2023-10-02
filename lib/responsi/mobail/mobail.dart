@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_19/responsi/mobail/screens/comments.dart';
 import 'package:flutter_application_19/sheert/colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'screens/add_post.dart';
@@ -75,7 +77,7 @@ class _moailState extends State<moail> {
           Search(),
           AddPost(),
           Center(child: Text("Love u ♥")),
-          Profile(),
+          Profile(uiddd:FirebaseAuth.instance.currentUser!.uid,),
         ],
       ),
     );
