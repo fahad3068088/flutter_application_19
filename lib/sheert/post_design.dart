@@ -1,18 +1,101 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/key.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_application_19/responsi/mobail/screens/comments.dart';
+import 'package:flutter_application_19/sheert/colors.dart';
+
 import 'package:intl/intl.dart';
 
-import '../responsi/mobail/screens/comments.dart';
-import 'colors.dart';
-
 class PostDesign extends StatefulWidget {
+  // current post
   final Map data;
-  const PostDesign({super.key, required this.data});
+  const PostDesign({Key? key, required this.data}) : super(key: key);
 
   @override
   State<PostDesign> createState() => _PostDesignState();
 }
 
 class _PostDesignState extends State<PostDesign> {
+  int commentCount = 0;
+
+  getCommentCount() async {
+    try {
+      QuerySnapshot commentdata = await FirebaseFirestore.instance
+          .collection("postSSS")
+          .doc(widget.data["postId"])
+          .collection("commentSSS")
+          .get();
+
+      setState(() {
+        commentCount = commentdata.docs.length;
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  showmodel() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          children: [
+            FirebaseAuth.instance.currentUser!.uid == widget.data["uid"]
+                ? SimpleDialogOption(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await FirebaseFirestore.instance
+                          .collection("postSSS")
+                          .doc(widget.data["postId"])
+                          .delete();
+                    },
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      "Delete post",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  )
+                : SimpleDialogOption(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      '${widget.data["username"]}',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+            SimpleDialogOption(
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+              padding: EdgeInsets.all(20),
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCommentCount();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double widthScreen = MediaQuery.of(context).size.width;
@@ -21,7 +104,7 @@ class _PostDesignState extends State<PostDesign> {
           color: mobileBackgroundColor,
           borderRadius: BorderRadius.circular(12)),
       margin: EdgeInsets.symmetric(
-          vertical: 55, horizontal: widthScreen > 600 ? widthScreen / 6 : 0),
+          vertical: 11, horizontal: widthScreen > 600 ? widthScreen / 6 : 0),
       child: Column(
         children: [
           Padding(
@@ -30,45 +113,49 @@ class _PostDesignState extends State<PostDesign> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.red,
+                        color: Color.fromARGB(125, 78, 91, 110),
                       ),
                       child: CircleAvatar(
                         radius: 33,
-                        backgroundImage: NetworkImage(widget.data["profileImg"]
+                        backgroundImage: NetworkImage(
+                            // widget.snap["profileImg"],
                             // "https://i.pinimg.com/564x/94/df/a7/94dfa775f1bad7d81aa9898323f6f359.jpg"
-
-                            ),
+                            // "https://static-ai.asianetnews.com/images/01e42s5h7kpdte5t1q9d0ygvf7/1-jpeg.jpg"
+                            widget.data["profileImg"]),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 17,
                     ),
                     Text(
-                      // "اسم المستخدم"
                       widget.data["username"],
                       style: TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
+                IconButton(
+                    onPressed: () {
+                      showmodel();
+                    },
+                    icon: Icon(Icons.more_vert)),
               ],
             ),
           ),
           Image.network(
-//  "https://cdn1-m.alittihad.ae/store/archive/image/2021/10/22/6266a092-72dd-4a2f-82a4-d22ed9d2cc59.jpg?width=1300"
+            // widget.snap["postUrl"],
+            // "https://cdn1-m.alittihad.ae/store/archive/image/2021/10/22/6266a092-72dd-4a2f-82a4-d22ed9d2cc59.jpg?width=1300",
             widget.data["imgPost"],
             fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height / 4,
+            height: MediaQuery.of(context).size.height * 0.35,
             width: double.infinity,
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 11),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -80,19 +167,22 @@ class _PostDesignState extends State<PostDesign> {
                     ),
                     IconButton(
                       onPressed: () {
-                         Navigator.push(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CommentsScreen(data : widget.data)),
+                              builder: (context) => CommentsScreen(
+                                    data: widget.data,
+                                    showTextField: false,
+                                  )),
                         );
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.comment_outlined,
                       ),
                     ),
                     IconButton(
                       onPressed: () {},
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.send,
                       ),
                     ),
@@ -106,36 +196,65 @@ class _PostDesignState extends State<PostDesign> {
             ),
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(12, 10, 0, 9),
-            width: double.infinity,
-            child: Text(
-              "${widget.data["likes"].length} ${widget.data["likes"].length > 1 ? "Likes" : "Like"}      ",
-              textAlign: TextAlign.start,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
+              margin: EdgeInsets.fromLTRB(10, 0, 0, 10),
+              width: double.infinity,
+              child: Text(
+                "${widget.data["likes"].length} ${widget.data["likes"].length > 1 ? "Likes" : "Like"}      ",
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: 18, color: Color.fromARGB(214, 157, 157, 165)),
+              )),
           Row(
             children: [
-              Text(widget.data["username"]),
-              const SizedBox(
-                height: 20,
-                width: 20,
+              SizedBox(
+                width: 9,
               ),
-              Text(widget.data["username"]),
+              Text(
+                widget.data["username"],
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: 20, color: Color.fromARGB(255, 189, 196, 199)),
+              ),
+              SizedBox(
+                width: 12,
+              ),
+              Text(
+                // " ${widget.snap["description"]}",
+                widget.data["description"],
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: 18, color: Color.fromARGB(255, 189, 196, 199)),
+              ),
             ],
           ),
-          GestureDetector(
-              onTap: () {},
-              child: Container(
-                  width: double.infinity,
-                  child: Text(widget.data["description"]))),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CommentsScreen(
+                          data: widget.data,
+                          showTextField: false,
+                        )),
+              );
+            },
+            child: Container(
+                margin: EdgeInsets.fromLTRB(10, 13, 9, 10),
+                width: double.infinity,
+                child: Text(
+                  "view all $commentCount comments",
+                  style: TextStyle(
+                      fontSize: 18, color: Color.fromARGB(214, 157, 157, 165)),
+                  textAlign: TextAlign.start,
+                )),
+          ),
           Container(
               margin: EdgeInsets.fromLTRB(10, 0, 9, 10),
               width: double.infinity,
               child: Text(
                 DateFormat('MMMM d, ' 'y')
                     .format(widget.data["datePublished"].toDate()),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18, color: Color.fromARGB(214, 157, 157, 165)),
                 textAlign: TextAlign.start,
               )),
