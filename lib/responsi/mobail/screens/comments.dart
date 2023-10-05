@@ -1,19 +1,19 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
+
 
 import '../../../firebase_services/firestore.dart';
 import '../../../provider/user_provider.dart';
 import '../../../sheert/colors.dart';
 import '../../../sheert/contants.dart';
 
+// ignore: must_be_immutable
 class CommentsScreen extends StatefulWidget {
   final Map data;
    bool showTextField = true;
@@ -26,6 +26,7 @@ class CommentsScreen extends StatefulWidget {
 class _CommentsScreenState extends State<CommentsScreen> {
   final commentController = TextEditingController();
 
+  @override
   void dispose() {
     commentController.dispose();
 

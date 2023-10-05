@@ -17,11 +17,11 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   Map userDate = {};
   bool isLoading = true;
- late int followers ;
- late int following ;
- late int postCount ;
+  late int followers;
+  late int following;
+  late int postCount;
 
- late bool showFollow ;
+  late bool showFollow;
 
   getData() async {
     // Get data from DB
@@ -253,7 +253,7 @@ class _ProfileState extends State<Profile> {
                         ],
                       )
                     // //////////////////////////////////////////////
-                    : showFollow 
+                    : showFollow
                         ? ElevatedButton(
                             onPressed: () async {
                               followers--;
@@ -379,6 +379,13 @@ class _ProfileState extends State<Profile> {
                                     // snapshot.data!.docs  = [  {"imgPost": 000000000}, {"imgPost": 0000000}    ]
 
                                     snapshot.data!.docs[index]["imgPost"],
+                                    loadingBuilder: (context, child, progress) {
+                                      return progress == null
+                                          ? child
+                                          : Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                    },
 
                                     // "https://cdn1-m.alittihad.ae/store/archive/image/2021/10/22/6266a092-72dd-4a2f-82a4-d22ed9d2cc59.jpg?width=1300",
                                     // height: 333,

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_19/responsi/mobail/mobail.dart';
-import 'package:flutter_application_19/responsi/web/web.dart';
+
 import 'package:provider/provider.dart';
 
 import '../provider/user_provider.dart';
 
 class Responsive extends StatefulWidget {
-  final mobaill;
-  final wepp;
+  final  mobaill;
+  final  wepp;
   const Responsive({super.key, required this.mobaill, required this.wepp});
 
   @override

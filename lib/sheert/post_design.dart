@@ -1,13 +1,18 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_application_19/firebase_services/firestore.dart';
 import 'package:flutter_application_19/responsi/mobail/screens/comments.dart';
 import 'package:flutter_application_19/sheert/colors.dart';
+import 'package:flutter_application_19/sheert/heart_animation.dart';
 
 import 'package:intl/intl.dart';
 
@@ -22,6 +27,8 @@ class PostDesign extends StatefulWidget {
 
 class _PostDesignState extends State<PostDesign> {
   int commentCount = 0;
+  bool showHeart = false;
+  bool isLikeAnimating = false;
 
   getCommentCount() async {
     try {
@@ -89,6 +96,18 @@ class _PostDesignState extends State<PostDesign> {
     );
   }
 
+  onClickekonPic() async {
+    setState(() {
+      isLikeAnimating = true;
+    });
+    await FirebaseFirestore.instance
+        .collection("postSSS")
+        .doc(widget.data["postId"])
+        .update({
+      "likes": FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -146,13 +165,49 @@ class _PostDesignState extends State<PostDesign> {
               ],
             ),
           ),
-          Image.network(
-            // widget.snap["postUrl"],
-            // "https://cdn1-m.alittihad.ae/store/archive/image/2021/10/22/6266a092-72dd-4a2f-82a4-d22ed9d2cc59.jpg?width=1300",
-            widget.data["imgPost"],
-            fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height * 0.35,
-            width: double.infinity,
+          GestureDetector(
+            onDoubleTap: () async {
+              await onClickekonPic();
+            },
+            child: Stack(
+              children: [
+                Image.network(
+                  // widget.snap["postUrl"],
+                  // "https://cdn1-m.alittihad.ae/store/archive/image/2021/10/22/6266a092-72dd-4a2f-82a4-d22ed9d2cc59.jpg?width=1300",
+                  widget.data["imgPost"],
+                  loadingBuilder: (context, child, progress) {
+                    return progress == null
+                        ? child
+                        : SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.35,
+                            child: Center(child: CircularProgressIndicator()));
+                  },
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  width: double.infinity,
+                ),
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isLikeAnimating ? 1 : 0,
+                  child: LikeAnimation(
+                    isAnimating: isLikeAnimating,
+                    duration: const Duration(
+                      milliseconds: 400,
+                    ),
+                    onEnd: () {
+                      setState(() {
+                        isLikeAnimating = false;
+                      });
+                    },
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 111,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 11),
@@ -161,9 +216,25 @@ class _PostDesignState extends State<PostDesign> {
               children: [
                 Row(
                   children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.favorite_border),
+                    LikeAnimation(
+                      isAnimating: widget.data['likes']
+                          .contains(FirebaseAuth.instance.currentUser!.uid),
+                      smallLike: true,
+                      child: IconButton(
+                        onPressed: () async {
+                          await FirestoreMethods()
+                              .toggleLike(postData: widget.data);
+                        },
+                        icon: widget.data['likes'].contains(
+                                FirebaseAuth.instance.currentUser!.uid)
+                            ? const Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              )
+                            : const Icon(
+                                Icons.favorite_border,
+                              ),
+                      ),
                     ),
                     IconButton(
                       onPressed: () {

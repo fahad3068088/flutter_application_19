@@ -3,8 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter_application_19/provider/user_provider.dart';
 import 'package:flutter_application_19/responsi/Responsive%20.dart';
 import 'package:flutter_application_19/responsi/mobail/mobail.dart';

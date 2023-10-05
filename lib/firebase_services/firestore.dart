@@ -1,4 +1,4 @@
-import 'dart:math';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,15 +44,14 @@ class FirestoreMethods {
             newId,
           )
           .set(postt.convert2Map())
-          .then((value) => print("done................"))
-          .catchError((error) => print("Failed to post: $error"));
+          .then((value) => showSnackBar(context, "ERROR :  done "))
+          .catchError((error) => showSnackBar(context, "Failed to post: $error"));
 
       message = " Posted successfully ♥ ♥";
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, "ERROR :  ${e.code} ");
     } catch (e) {
-      print(e);
-    }
+showSnackBar(context, "$e");    }
 
     showSnackBar(context, message);
   }
@@ -84,4 +83,29 @@ class FirestoreMethods {
       
               }
          }
+         
+         toggleLike({required Map postData}) async {
+    try {
+      if (postData["likes"].contains(FirebaseAuth.instance.currentUser!.uid)) {
+        await FirebaseFirestore.instance
+            .collection("postSSS")
+            .doc(postData["postId"])
+            .update({
+          "likes":
+              FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+        });
+      } else {
+        await FirebaseFirestore.instance
+            .collection("postSSS")
+            .doc(postData["postId"])
+            .update({
+          "likes":
+              FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+    }
+  }
   }
